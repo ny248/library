@@ -32,97 +32,97 @@ class queue:
 
 # Handle natural numbers with the law of primes, or rational numbers
 class mod_int:
-    def __init__(self, value, mod):
-        self.value = value % mod
-        self.mod = mod
-    def __neg__(self):
-        return mod_int(-self.value, self.mod)
-    def __add__(self, other):
-        if type(other) == mod_int:
-            return mod_int(self.value + other.value, self.mod)
-        elif type(other) == int:
-            return mod_int(self.value + other, self.mod)
-        raise TypeError()
-    def __sub__(self, other):
-        return self + (-other)
-    def __mul__(self, other):
-        if type(other) == mod_int:
-            return mod_int(self.value * other.value, self.mod)
-        elif type(other) == int:
-            return mod_int(self.value * other, self.mod)
-        raise TypeError()
-    def __truediv__(self, other):
-        if type(other) in [mod_int, int]:
-            return self * other ** (self.mod - 2)
-        raise TypeError()
-    def __pow__(self, other):
-        if type(other) != int:
-            raise TypeError()
-        cur, ret = self.value, 1
-        while other > 0:
+	def __init__(self, value, mod):
+		self.value = value % mod
+		self.mod = mod
+	def __neg__(self):
+		return mod_int(-self.value, self.mod)
+	def __add__(self, other):
+		if type(other) == mod_int:
+			return mod_int(self.value + other.value, self.mod)
+		elif type(other) == int:
+			return mod_int(self.value + other, self.mod)
+		raise TypeError()
+	def __sub__(self, other):
+		return self + (-other)
+	def __mul__(self, other):
+		if type(other) == mod_int:
+			return mod_int(self.value * other.value, self.mod)
+		elif type(other) == int:
+			return mod_int(self.value * other, self.mod)
+		raise TypeError()
+	def __truediv__(self, other):
+		if type(other) in [mod_int, int]:
+			return self * other ** (self.mod - 2)
+		raise TypeError()
+	def __pow__(self, other):
+		if type(other) != int:
+			raise TypeError()
+		cur, ret = self.value, 1
+		while other > 0:
 			if other % 2:
-                ret = (ret * cur) % self.mod
-            other //= 2
-            cur = (cur ** 2) % self.mod
-        return mod_int(ret, self.mod)
-    def __repr__(self):
-        return str(self.value)
+				ret = (ret * cur) % self.mod
+			other //= 2
+			cur = (cur ** 2) % self.mod
+		return mod_int(ret, self.mod)
+	def __repr__(self):
+		return str(self.value)
 	
 
 class segment_tree:
 	def __init__(self, A, unit, func):
 		self.N = 1
-        self.unit = unit
-        self.func = func
-        while self.N < len(A):
-            self.N *= 2
-        self.memo = [None for i in range(self.N * 2 - 1)]
-        for i in range(len(A)):
-            self.memo[i + self.N - 1] = A[i]
+		self.unit = unit
+		self.func = func
+		while self.N < len(A):
+			self.N *= 2
+		self.memo = [None for i in range(self.N * 2 - 1)]
+		for i in range(len(A)):
+			self.memo[i + self.N - 1] = A[i]
 		for i in range(len(A), self.N):
 			self.memo[i + self.N - 1] = self.unit
-        for i in range(self.N - 2, -1, -1):
-            self.memo[i] = self.func(self.memo[2 * i + 1], self.memo[2 * i + 2])
-    def update(self, index, value):
-        i = index + self.N - 1
-        self.memo[i] = value
-        while i > 0:
-            i = (i - 1) // 2
-            self.memo[i] = self.func(self.memo[2 * i + 1],self.memo[2 * i + 2])
-    def get(self, begin, end):
-        b, e = begin + self.N - 1, end + self.N - 1
-        ans = self.unit
-        while b < e:
-            if b % 2 == 0:
-                ans = self.func(ans, self.memo[b])
-            b = b // 2
-            if e % 2 == 0:
-                ans = self.func(ans, self.memo[e - 1])
-            e = (e - 1) // 2
-        return ans
+		for i in range(self.N - 2, -1, -1):
+			self.memo[i] = self.func(self.memo[2 * i + 1], self.memo[2 * i + 2])
+	def update(self, index, value):
+		i = index + self.N - 1
+		self.memo[i] = value
+		while i > 0:
+			i = (i - 1) // 2
+			self.memo[i] = self.func(self.memo[2 * i + 1],self.memo[2 * i + 2])
+	def get(self, begin, end):
+		b, e = begin + self.N - 1, end + self.N - 1
+		ans = self.unit
+		while b < e:
+			if b % 2 == 0:
+				ans = self.func(ans, self.memo[b])
+			b = b // 2
+			if e % 2 == 0:
+				ans = self.func(ans, self.memo[e - 1])
+			e = (e - 1) // 2
+		return ans
 
 # 入力:大きさ2 ** N の配列 A[i]
 # 出力:大きさ2 ** N の配列 B[i] B[i] は i | j = i　となるような全てのjに対してのA[j]の和
 def subset_zeta(A, N):
-    B = A.copy()
-    mask = 1
-    for i in range(N):
-        for j in range(2 ** N):
-            if j & mask == 0:
-                B[j | mask] += B[j]
-        mask *= 2
-    return B
+	B = A.copy()
+	mask = 1
+	for i in range(N):
+		for j in range(2 ** N):
+			if j & mask == 0:
+				B[j | mask] += B[j]
+		mask *= 2
+	return B
 subset_zeta([2,5,3,7],2)
 #逆変換
 def subset_mobius(A, N):
-    B = A.copy()
-    mask = 1
-    for i in range(N):
-        for j in range(2 ** N):
-            if j & mask:
-                B[j] -= B[j ^ mask]
-        mask *= 2
-    return B
+	B = A.copy()
+	mask = 1
+	for i in range(N):
+		for j in range(2 ** N):
+			if j & mask:
+				B[j] -= B[j ^ mask]
+		mask *= 2
+	return B
 print(subset_mobius([2,7,5,17],2))
 
 # 入力:大きさ2 ** N の配列 A[i]
@@ -260,34 +260,34 @@ class directedWeightedGraph:
 		return ans
 
 def knapsack(items,capacity):#itemsは[重さ、価値]の配列
-    N=len(items)
-    dp=[[0 for i in range(capacity+1)] for j in range(N+1)]
-    for i in range(N):
-        for j in range(min(capacity+1,items[i][0])):
-            dp[i+1][j]=dp[i][j]
-        for j in range(items[i][0],capacity+1):
-            dp[i+1][j]=max(dp[i][j],dp[i][j-items[i][0]]+items[i][1])
-    return dp[N][capacity]
+	N=len(items)
+	dp=[[0 for i in range(capacity+1)] for j in range(N+1)]
+	for i in range(N):
+		for j in range(min(capacity+1,items[i][0])):
+			dp[i+1][j]=dp[i][j]
+		for j in range(items[i][0],capacity+1):
+			dp[i+1][j]=max(dp[i][j],dp[i][j-items[i][0]]+items[i][1])
+	return dp[N][capacity]
 
 def euclid(a,b,c):#ax+by=cの解を一つ返す 解が存在しない時は-1をかえす
-    print(a,b,c)
-    if a==b==0:
-        return [[1,1],-1][c!=0]
-    if a<0 or b<0:
-        temp=euclid(abs(a),abs(b),c)
-        return -1 if temp==-1 else [[1,-1][a<0]*temp[0],[1,-1][b<0]*temp[1]]
-    if a==0:
-        return -1 if c%b else [0,c//b]
-    if b==0:
-        return -1 if c%a else [c//a,0]
-    if b>a:
-        temp=euclid(a,b%a,c)
-        print(temp)
-        return -1 if temp==-1 else [temp[0]-(b//a)*temp[1],temp[1]]
-    else:
-        temp=euclid(a%b,b,c)
-        print(temp)
-        return -1 if temp==-1 else [temp[0],temp[1]-(a//b)*temp[0]]
+	print(a,b,c)
+	if a==b==0:
+		return [[1,1],-1][c!=0]
+	if a<0 or b<0:
+		temp=euclid(abs(a),abs(b),c)
+		return -1 if temp==-1 else [[1,-1][a<0]*temp[0],[1,-1][b<0]*temp[1]]
+	if a==0:
+		return -1 if c%b else [0,c//b]
+	if b==0:
+		return -1 if c%a else [c//a,0]
+	if b>a:
+		temp=euclid(a,b%a,c)
+		print(temp)
+		return -1 if temp==-1 else [temp[0]-(b//a)*temp[1],temp[1]]
+	else:
+		temp=euclid(a%b,b,c)
+		print(temp)
+		return -1 if temp==-1 else [temp[0],temp[1]-(a//b)*temp[0]]
 print(euclid(13,14,4))
 
 def factorization(a):
@@ -300,7 +300,7 @@ def factorization(a):
 		i += 1
 	if a > 1:
 		ans.append(a)
-	return sorted(ans)
+	return ans
 
 def next_combination(A):#0と1からなる配列でcombinationを表す 辞書順で次の配列を返す 終わったら-1を返す O(N)
 	N = len(A)
